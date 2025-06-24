@@ -63,5 +63,5 @@ app.delete('/delete/:filename', (req, res) => {
 
 // Start the server
 app.listen((process.env.PORT || 5000), () => {
-    console.log(`✅ NAS server running at http://localhost:${PORT}`)
+    console.log(`\n🚀 Server listening on port: ${process.env.PORT || 5000}`)
 })
