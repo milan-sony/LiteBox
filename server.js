@@ -50,6 +50,17 @@ app.get('/download/:filename', (req, res) => {
     }
 })
 
+// Delete a file
+app.delete('/delete/:filename', (req, res) => {
+    const filePath = path.join(STORAGE_DIR, req.params.filename)
+    if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath)
+        res.send('File deleted')
+    } else {
+        res.status(404).send('File not found')
+    }
+})
+
 // Start the server
 app.listen((process.env.PORT || 5000), () => {
     console.log(`✅ NAS server running at http://localhost:${PORT}`)
