@@ -5,6 +5,7 @@ import cors from 'cors'
 import path from 'path'
 import dotenv from 'dotenv'
 import { fileURLToPath } from 'url'
+import ip from "ip"
 
 // Config .env
 dotenv.config()
@@ -61,7 +62,15 @@ app.delete('/delete/:filename', (req, res) => {
     }
 })
 
-// Start the server
-app.listen((process.env.PORT || 5000), () => {
-    console.log(`\n🚀 Server listening on port: ${process.env.PORT || 5000}`)
+// connection port
+const PORT = process.env.PORT || 5000
+
+// gets local IP
+const localIP = ip.address();
+
+// listen on all network interfaces (0.0.0.0)
+app.listen((PORT), '0.0.0.0', () => {
+    console.log(`\n🚀 Server listening on port: ${PORT}`)
+    console.log(`\n🌼 Server running on http://0.0.0.0:${PORT}`)
+    console.log(`\n⭐ Server is accessible at http://${localIP}:${PORT}`)
 })
