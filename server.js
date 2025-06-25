@@ -71,14 +71,14 @@ const localIP = ip.address();
 
 // Start the server
 app.listen(PORT, '0.0.0.0', async () => {
-    console.log(`\n🚀 Server listening on port: ${PORT}`)
-    console.log(`\n🌼 NAS server running at http://localhost:${PORT}`)
-    console.log(`\n✅ Server is accessible at http://${localIP}:${PORT}`)
+    console.log(`\n✅ NAS Server is running!`)
+    console.log(`📍 Localhost:  http://localhost:${PORT}`)
+    console.log(`📡 Local Network:  http://${localIP}:${PORT}`)
 
     // Start ngrok and log the public URL
     const tunnel = await ngrok.connect({
         addr: PORT,
         authtoken: process.env.NGROK_AUTH_TOKEN,
     })
-    console.log(`\n🌐 Public URL via Ngrok: ${tunnel.url()}`)
+    console.log(`🌐 Public Access via Ngrok:  ${tunnel.url()}`)
 })
