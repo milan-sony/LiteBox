@@ -6,6 +6,7 @@ import path from 'path'
 import dotenv from 'dotenv'
 import { fileURLToPath } from 'url'
 import ip from "ip"
+import ngrok from "@ngrok/ngrok"
 
 // Config .env
 dotenv.config()
@@ -68,9 +69,16 @@ const PORT = process.env.PORT || 5000
 // gets local IP
 const localIP = ip.address();
 
-// listen on all network interfaces (0.0.0.0)
-app.listen((PORT), '0.0.0.0', () => {
+// Start the server
+app.listen(PORT, '0.0.0.0', async () => {
     console.log(`\n🚀 Server listening on port: ${PORT}`)
-    console.log(`\n🌼 Server running on http://0.0.0.0:${PORT}`)
-    console.log(`\n⭐ Server is accessible at http://${localIP}:${PORT}`)
+    console.log(`\n🌼 NAS server running at http://localhost:${PORT}`)
+    console.log(`\n✅ Server is accessible at http://${localIP}:${PORT}`)
+
+    // Start ngrok and log the public URL
+    const tunnel = await ngrok.connect({
+        addr: PORT,
+        authtoken: process.env.NGROK_AUTH_TOKEN,
+    })
+    console.log(`\n🌐 Public URL via Ngrok: ${tunnel.url()}`)
 })
