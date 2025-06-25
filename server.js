@@ -4,27 +4,29 @@ import fs from 'fs-extra'
 import cors from 'cors'
 import path from 'path'
 import dotenv from 'dotenv'
+import ngrok from '@ngrok/ngrok'
 import { fileURLToPath } from 'url'
-import ip from "ip"
-import ngrok from "@ngrok/ngrok"
+import ip from 'ip'
+import { spawn } from 'child_process'
 
-// Config .env
+// Load environment variables
 dotenv.config()
 
 // Resolve __dirname in ES Modules
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// Initialize Express App and Setup Storage Directory
-const app = express()
+const PORT = process.env.PORT || 3000
 const STORAGE_DIR = path.join(__dirname, 'storage')
 
-fs.ensureDirSync(STORAGE_DIR) // Creates the 'storage' folder if it doesn't exist
+fs.ensureDirSync(STORAGE_DIR)
+
+const app = express()
 app.use(cors())
-app.use(express.static(STORAGE_DIR)) // Serve static files directly
+app.use(express.static(STORAGE_DIR))
 app.use(express.json())
 
-// Configure Multer for File Uploads
+// Multer setup
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, STORAGE_DIR),
     filename: (req, file, cb) => cb(null, file.originalname)
@@ -45,40 +47,49 @@ app.get('/files', (req, res) => {
 // Download a file
 app.get('/download/:filename', (req, res) => {
     const filePath = path.join(STORAGE_DIR, req.params.filename)
-    if (fs.existsSync(filePath)) {
-        res.download(filePath)
-    } else {
-        res.status(404).send('File not found')
-    }
+    fs.existsSync(filePath)
+        ? res.download(filePath)
+        : res.status(404).send('File not found')
 })
 
 // Delete a file
 app.delete('/delete/:filename', (req, res) => {
     const filePath = path.join(STORAGE_DIR, req.params.filename)
-    if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath)
-        res.send('File deleted')
-    } else {
-        res.status(404).send('File not found')
-    }
+    fs.existsSync(filePath)
+        ? (fs.unlinkSync(filePath), res.send('File deleted'))
+        : res.status(404).send('File not found')
 })
 
-// connection port
-const PORT = process.env.PORT || 5000
+// Start server + Ngrok
+const startServer = async () => {
+    const localIP = ip.address()
 
-// gets local IP
-const localIP = ip.address();
+    app.listen(PORT, '0.0.0.0', async () => {
+        console.log(`\n🚀 Server running locally at http://${localIP}:${PORT}`)
 
-// Start the server
-app.listen(PORT, '0.0.0.0', async () => {
-    console.log(`\n✅ NAS Server is running!`)
-    console.log(`\n📍 Localhost:  http://localhost:${PORT}`)
-    console.log(`\n📡 Local Network:  http://${localIP}:${PORT}`)
-
-    // Start ngrok and log the public URL
-    const tunnel = await ngrok.connect({
-        addr: PORT,
-        authtoken: process.env.NGROK_AUTH_TOKEN,
+        try {
+            const tunnel = await ngrok.connect({ addr: PORT, authtoken: process.env.NGROK_AUTH_TOKEN })
+            const ngrokUrl = tunnel.url()
+            console.log(`\n🌍 Public Ngrok URL: ${ngrokUrl}`)
+        } catch (err) {
+            console.error('\n❌ Ngrok failed to start:', err.message)
+        }
     })
-    console.log(`\n🌐 Public Access via Ngrok:  ${tunnel.url()}`)
-})
+}
+
+// Auto-restart after 8 hours
+const AUTO_RESTART_HOURS = 8
+const restartAfter = AUTO_RESTART_HOURS * 60 * 60 * 1000
+console.log(`\n⏱️  LiteBox will auto-restart every ${AUTO_RESTART_HOURS} hours`)
+
+setTimeout(() => {
+    console.log('\n🔁 Auto-restarting LiteBox now...')
+    spawn('node', [__filename], {
+        cwd: __dirname,
+        stdio: 'inherit',
+        shell: true
+    })
+    process.exit(0)
+}, restartAfter)
+
+startServer()
