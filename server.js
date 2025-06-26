@@ -8,6 +8,7 @@ import ngrok from '@ngrok/ngrok'
 import { fileURLToPath } from 'url'
 import ip from 'ip'
 import { spawn } from 'child_process'
+import chalk from 'chalk'
 
 // Load environment variables
 dotenv.config()
@@ -65,7 +66,8 @@ const startServer = async () => {
     const localIP = ip.address()
 
     app.listen(PORT, '0.0.0.0', async () => {
-        console.log(`\n🚀 NAS Server is running!`)
+        console.log(chalk.green(`\n🚀 NAS Server is running!`));
+        // console.log(`\n🚀 NAS Server is running!`)
         console.log(`\n📍 Localhost:  http://localhost:${PORT}`)
         console.log(`\n📡 Local Network:  http://${localIP}:${PORT}`)
 
@@ -74,7 +76,7 @@ const startServer = async () => {
             const ngrokUrl = tunnel.url()
             console.log(`\n🌍 Public Access Ngrok URL: ${ngrokUrl}`)
         } catch (err) {
-            console.error('\n❌ Ngrok failed to start:', err.message)
+            console.log(chalk.red('\n❌ Ngrok failed to start:', err.message))
         }
     })
 }
@@ -84,7 +86,7 @@ const AUTO_RESTART_HOURS = 8
 const restartAfter = AUTO_RESTART_HOURS * 60 * 60 * 1000
 
 setTimeout(() => {
-    console.log('\n🔁 Auto-restarting LiteBox now...')
+    console.log(chalk.blue('\n🔁 Auto-restarting LiteBox now...'))
     spawn('node', [__filename], {
         cwd: __dirname,
         stdio: 'inherit',
