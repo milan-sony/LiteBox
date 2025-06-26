@@ -65,12 +65,14 @@ const startServer = async () => {
     const localIP = ip.address()
 
     app.listen(PORT, '0.0.0.0', async () => {
-        console.log(`\n🚀 Server running locally at http://${localIP}:${PORT}`)
+        console.log(`\n🚀 NAS Server is running!`)
+        console.log(`\n📍 Localhost:  http://localhost:${PORT}`)
+        console.log(`\n📡 Local Network:  http://${localIP}:${PORT}`)
 
         try {
             const tunnel = await ngrok.connect({ addr: PORT, authtoken: process.env.NGROK_AUTH_TOKEN })
             const ngrokUrl = tunnel.url()
-            console.log(`\n🌍 Public Ngrok URL: ${ngrokUrl}`)
+            console.log(`\n🌍 Public Access Ngrok URL: ${ngrokUrl}`)
         } catch (err) {
             console.error('\n❌ Ngrok failed to start:', err.message)
         }
@@ -80,7 +82,6 @@ const startServer = async () => {
 // Auto-restart after 8 hours
 const AUTO_RESTART_HOURS = 8
 const restartAfter = AUTO_RESTART_HOURS * 60 * 60 * 1000
-console.log(`\n⏱️  LiteBox will auto-restart every ${AUTO_RESTART_HOURS} hours`)
 
 setTimeout(() => {
     console.log('\n🔁 Auto-restarting LiteBox now...')
