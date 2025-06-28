@@ -2,7 +2,11 @@ import React from 'react'
 
 function IndexPage() {
     return (
-        <div>IndexPage</div>
+        <fieldset className="fieldset">
+            <legend className="fieldset-legend">Pick a file</legend>
+            <input type="file" className="file-input" />
+            <label className="label">Max size 2MB</label>
+        </fieldset>
     )
 }
 
