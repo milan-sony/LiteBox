@@ -1,12 +1,13 @@
 import React from 'react'
+import Navbar from '../../components/Navbar/Navbar'
 
 function IndexPage() {
     return (
-        <fieldset className="fieldset">
-            <legend className="fieldset-legend">Pick a file</legend>
-            <input type="file" className="file-input" />
-            <label className="label">Max size 2MB</label>
-        </fieldset>
+        <>
+            <div className='bg-base-200 w-full h-dvh'>
+                <Navbar />
+            </div>
+        </>
     )
 }
 

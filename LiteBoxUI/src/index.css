@@ -1,26 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
 @import "tailwindcss";
-@plugin "daisyui"
 
-/* @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+/* @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *)); */
 
 @layer base {
     html {
         @apply transition-colors duration-300
     }
-
-    body {
-        @apply bg-text dark:bg-background text-background dark:text-text
-    }
 }
 
 @theme {
-    --font-playfair: "Playfair", serif;
     --font-poppins: "Poppins", sans-serif;
     --font-roboto: "Roboto", sans-serif;
+
 }
 
 @plugin "daisyui" {
-    themes: false;
-} */
+    themes: emerald --default, dark --prefersdark, night;
+}
