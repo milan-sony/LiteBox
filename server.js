@@ -19,12 +19,15 @@ const __dirname = path.dirname(__filename)
 
 const PORT = process.env.PORT || 3000
 const STORAGE_DIR = path.join(__dirname, 'storage')
+const PUBLIC_DIR = path.join(__dirname, 'public')
 
 fs.ensureDirSync(STORAGE_DIR)
+fs.ensureDirSync(PUBLIC_DIR)
 
 const app = express()
 app.use(cors())
 app.use(express.static(STORAGE_DIR))
+app.use(express.static(PUBLIC_DIR))
 app.use(express.json())
 
 // Multer setup
