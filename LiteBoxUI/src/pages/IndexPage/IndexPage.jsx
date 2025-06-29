@@ -1,5 +1,7 @@
 import React from 'react'
 import Navbar from '../../components/Navbar/Navbar'
+import { Link } from 'react-router-dom'
+
 
 function IndexPage() {
     return (
@@ -118,9 +120,12 @@ function IndexPage() {
                     </div>
 
                     {/* Button */}
-                    <div className='mt-5 mb-10 flex justify-center items-center'>
-                        <button className="mt-6 btn btn-secondary">🚀 Launch LiteBox</button>
+                    <div className='mt-10 mb-10 flex justify-center items-center'>
+                        <Link to="/home" className="btn btn-secondary font-[roboto]">
+                            🚀 Launch LiteBox
+                        </Link>
                     </div>
+
                 </div>
 
                 {/* Footer */}
