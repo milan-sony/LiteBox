@@ -26,7 +26,7 @@ function Navbar() {
     return (
         <div className="navbar bg-base-100 shadow-sm">
             <div className="flex-1">
-                <a className="btn btn-ghost text-xl font-poppins">📦 LiteBox</a>
+                <a className="btn btn-ghost text-xl font-[poppins]">📦 LiteBox</a>
             </div>
             <div className="flex-none">
                 <button onClick={toggleTheme}>
