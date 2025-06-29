@@ -10,6 +10,7 @@ import ip from 'ip'
 import { spawn } from 'child_process'
 import chalk from 'chalk'
 import rateLimit from 'express-rate-limit'
+import checkDiskSpace from 'check-disk-space'
 
 // Load environment variables
 dotenv.config()
@@ -176,6 +177,24 @@ app.delete('/delete', (req, res) => {
         res.send('Deleted')
     } else {
         res.status(404).send('Not found')
+    }
+})
+
+app.get('/storage-info', async (req, res) => {
+    try {
+        // On Windows use 'C:\\' or the drive where STORAGE_DIR is located
+        // On Linux/macOS you can use '/'
+        const pathToCheck = process.platform === 'win32' ? 'C:\\' : '/'
+
+        const { free, size } = await checkDiskSpace(pathToCheck)
+        res.json({
+            free,
+            total: size,
+            used: size - free
+        })
+    } catch (err) {
+        console.error('Disk space check failed:', err)
+        res.status(500).json({ message: 'Failed to get disk usage info' })
     }
 })
 

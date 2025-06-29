@@ -20,6 +20,7 @@
     "dependencies": {
         "@ngrok/ngrok": "^1.5.1",
         "chalk": "^5.4.1",
+        "check-disk-space": "^3.4.0",
         "cors": "^2.8.5",
         "dotenv": "^16.5.0",
         "express": "^5.1.0",

@@ -10,8 +10,18 @@ function HomePage() {
     const [uploading, setUploading] = useState(false)
     const [progress, setProgress] = useState(0)
     const [newFolderName, setNewFolderName] = useState('')
+    const [storageInfo, setStorageInfo] = useState(null)
 
     const fullPath = currentPath.join('/')
+
+    const fetchStorageInfo = async () => {
+        try {
+            const res = await axiosInstance.get("/storage-info")
+            setStorageInfo(res.data)
+        } catch (err) {
+            toast.error("Failed to fetch storage info.")
+        }
+    }
 
     const fetchFiles = async () => {
         try {
@@ -41,6 +51,7 @@ function HomePage() {
 
     useEffect(() => {
         fetchFiles()
+        fetchStorageInfo()
     }, [])
 
     const handleUpload = async (e) => {
@@ -116,8 +127,16 @@ function HomePage() {
             <Navbar />
             <div className="min-h-screen bg-base-200 py-10 px-4">
                 <div className="max-w-screen-lg mx-auto bg-base-100 p-6 rounded-xl shadow-lg">
+
+                    {/* Storage space */}
+                    {storageInfo && (
+                        <div className="text-sm text-secondary mt-1">
+                            💾 Free: {formatBytes(storageInfo.free)} / Total: {formatBytes(storageInfo.total)}
+                        </div>
+                    )}
+
                     {/* Path & Back */}
-                    <div className="flex items-center justify-between flex-wrap gap-2 mb-6">
+                    <div className="flex items-center justify-between flex-wrap gap-2 mb-6 mt-4">
                         <div className="text-sm text-secondary font-mono">
                             <strong>Path:</strong> /{fullPath || ''}
                         </div>
@@ -175,7 +194,7 @@ function HomePage() {
                         {items.map(item => (
                             <div
                                 key={item.name}
-                                className="flex justify-between items-center bg-base-200 hover:bg-base-100 px-4 py-2 rounded-lg transition"
+                                className="flex justify-between items-center bg-base-200 hover:bg-base-300 px-4 py-2 rounded-lg transition"
                             >
                                 <div className="flex items-center gap-2 w-3/4 truncate">
                                     {item.type === 'folder' ? (
