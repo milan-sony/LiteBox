@@ -27,8 +27,15 @@ fs.ensureDirSync(PUBLIC_DIR)
 
 const app = express()
 
-// ✅ Trust proxy headers (needed for Ngrok and rate limiting to work correctly)
-app.set('trust proxy', true)
+// Restrict proxy trust
+app.set('trust proxy', 'loopback')
+
+// Rate Limiting
+app.use(rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100, // limit each IP to 100 requests per 15 min
+    message: "Too many request from this IP"
+}))
 
 app.use(cors())
 app.use(express.static(PUBLIC_DIR))
@@ -44,13 +51,6 @@ app.use((req, res, next) => {
     }
     next()
 })
-
-// Rate Limiting
-app.use(rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100, // limit each IP to 100 requests per 15 min
-    message: "Too many request from this IP"
-}))
 
 // Sanitize incoming paths
 const safePath = (subPath = '') => {
@@ -85,6 +85,53 @@ app.post('/create-folder', (req, res) => {
     } else {
         res.status(400).json({ message: 'Folder already exists' })
     }
+})
+
+// Helper to calculate file/folder size
+const getFolderSize = (dirPath) => {
+    let totalSize = 0
+    const items = fs.readdirSync(dirPath)
+
+    for (const item of items) {
+        const fullPath = path.join(dirPath, item)
+        const stats = fs.statSync(fullPath)
+
+        if (stats.isDirectory()) {
+            totalSize += getFolderSize(fullPath)
+        } else {
+            totalSize += stats.size
+        }
+    }
+
+    return totalSize
+}
+
+// Recursive listing with size
+const readRecursive = (dir) => {
+    return fs.readdirSync(dir).map((name) => {
+        const fullPath = path.join(dir, name)
+        const stat = fs.statSync(fullPath)
+
+        if (stat.isDirectory()) {
+            return {
+                name,
+                type: 'folder',
+                size: getFolderSize(fullPath),
+                children: readRecursive(fullPath)
+            }
+        } else {
+            return {
+                name,
+                type: 'file',
+                size: stat.size,
+                path: path.relative(STORAGE_DIR, fullPath)
+            }
+        }
+    })
+}
+
+app.get('/files', (req, res) => {
+    res.json(readRecursive(STORAGE_DIR))
 })
 
 // List folders and files recursively
