@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { UploadCloud, Download, Trash2, FolderPlus, Folder } from 'lucide-react'
 import axiosInstance from '../../lib/Axios'
+import Navbar from '../../components/Navbar/Navbar'
 
 function HomePage() {
     const [structure, setStructure] = useState([])
@@ -93,38 +94,36 @@ function HomePage() {
 
     return (
         <>
-            <div className="min-h-screen bg-gray-100 p-4">
-                <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow p-6">
-                    <h1 className="text-2xl font-bold text-center mb-4">📦 LITEBOX</h1>
-
-                    <div className="flex flex-wrap items-center justify-between mb-4">
-                        <div>
-                            <span className="text-sm text-gray-600">Path:</span>
-                            <span className="ml-2 font-mono text-blue-500">/{fullPath || ''}</span>
+            <Navbar />
+            <div className="min-h-screen bg-base-200 py-10 px-4">
+                <div className="max-w-screen-lg mx-auto bg-base-100 p-6 rounded-xl shadow-lg">
+                    {/* Path & Back */}
+                    <div className="flex items-center justify-between flex-wrap gap-2 mb-6">
+                        <div className="text-sm text-secondary font-mono">
+                            <strong>Path:</strong> /{fullPath || ''}
                         </div>
                         {currentPath.length > 0 && (
-                            <button
-                                onClick={goBack}
-                                className="text-sm text-blue-600 hover:underline"
-                            >⬅ Back</button>
+                            <button onClick={goBack} className="btn btn-sm btn-outline btn-secondary">⬅ Back</button>
                         )}
                     </div>
 
-                    <div className="flex gap-2 mb-4">
+                    {/* New Folder */}
+                    <div className="flex gap-2 mb-4 flex-wrap">
                         <input
                             type="text"
                             value={newFolderName}
                             onChange={(e) => setNewFolderName(e.target.value)}
                             placeholder="New folder name"
-                            className="border px-3 py-1 rounded-md text-sm w-full"
+                            className="input input-sm input-bordered w-full sm:w-auto flex-1"
                         />
-                        <button onClick={createFolder} className="bg-blue-500 text-white px-4 py-1 rounded-md">
-                            <FolderPlus size={18} className="inline mr-1" /> Create
+                        <button onClick={createFolder} className="btn btn-sm btn-secondary">
+                            <FolderPlus size={16} className="mr-1" /> Create
                         </button>
                     </div>
 
+                    {/* Upload Box */}
                     <div
-                        className="border-2 border-dashed p-6 rounded-xl text-center cursor-pointer hover:bg-gray-50"
+                        className="border-2 border-dashed border-secondary p-6 rounded-lg text-center cursor-pointer bg-base-300 hover:bg-base-100 transition"
                         onDragOver={(e) => e.preventDefault()}
                         onDrop={(e) => {
                             e.preventDefault()
@@ -138,49 +137,54 @@ function HomePage() {
                         }}
                     >
                         <input type="file" className="hidden" id="fileInput" onChange={handleUpload} />
-                        <label htmlFor="fileInput" className="cursor-pointer text-blue-600 font-medium">
-                            <UploadCloud className="mx-auto w-6 h-6 mb-2" /> Click or drag a file to upload
+                        <label htmlFor="fileInput" className="cursor-pointer block text-sm text-secondary">
+                            <UploadCloud className="mx-auto w-6 h-6 mb-2" />
+                            Click or drag a file to upload
                         </label>
                     </div>
 
+                    {/* Progress Bar */}
                     {uploading && (
-                        <div className="w-full mt-3 bg-gray-200 rounded-full h-2">
-                            <div
-                                className="bg-blue-500 h-2 rounded-full"
-                                style={{ width: `${progress}%` }}
-                            ></div>
-                            <p className="text-xs text-center mt-1">Uploading... {progress}%</p>
+                        <div className="mt-4">
+                            <progress className="progress progress-info w-full" value={progress} max="100"></progress>
+                            <p className="text-xs text-center mt-1 text-info">Uploading... {progress}%</p>
                         </div>
                     )}
 
-                    <ul className="mt-6 space-y-2">
+                    {/* File/Folder List */}
+                    <div className="mt-6 space-y-2">
                         {items.map(item => (
-                            <li
+                            <div
                                 key={item.name}
-                                className="flex justify-between items-center bg-gray-50 rounded-lg px-4 py-2"
+                                className="flex justify-between items-center bg-base-200 hover:bg-base-100 px-4 py-2 rounded-lg transition"
                             >
-                                <span className="truncate w-5/6">
+                                <div className="flex items-center gap-2 w-3/4 truncate">
                                     {item.type === 'folder' ? (
-                                        <button onClick={() => navigateTo(item.name)} className="text-blue-600 font-medium">
-                                            <Folder className="inline-block mr-1 w-5 h-5" /> {item.name}
+                                        <button
+                                            onClick={() => navigateTo(item.name)}
+                                            className="text-secondary hover:underline text-left"
+                                        >
+                                            <Folder className="inline-block w-5 h-5 mr-1" /> {item.name}
                                         </button>
                                     ) : (
-                                        <span>{item.name}</span>
+                                        <span className="text-secondary truncate">
+                                            📄 {item.name}
+                                        </span>
                                     )}
-                                </span>
-                                <div className="flex gap-3">
+                                </div>
+                                <div className="flex gap-2">
                                     {item.type === 'file' && (
-                                        <button onClick={() => downloadFile(item.name)} className="text-green-600">
-                                            <Download size={18} />
+                                        <button onClick={() => downloadFile(item.name)} className="btn btn-xs btn-success">
+                                            <Download size={14} />
                                         </button>
                                     )}
-                                    <button onClick={() => deleteItem(item.name)} className="text-red-500">
-                                        <Trash2 size={18} />
+                                    <button onClick={() => deleteItem(item.name)} className="btn btn-xs btn-error">
+                                        <Trash2 size={14} />
                                     </button>
                                 </div>
-                            </li>
+                            </div>
                         ))}
-                    </ul>
+                    </div>
                 </div>
             </div>
         </>
