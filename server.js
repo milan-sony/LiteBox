@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url'
 import ip from 'ip'
 import { spawn } from 'child_process'
 import chalk from 'chalk'
+import rateLimit from 'express-rate-limit'
 
 // Load environment variables
 dotenv.config()
@@ -28,6 +29,24 @@ const app = express()
 app.use(cors())
 app.use(express.static(PUBLIC_DIR))
 app.use(express.json())
+
+// Authorization middleware to protect routes
+app.use((req, res, next) => {
+    const auth = req.headers['authorization']
+    const expected = `Bearer ${process.env.LITEBOX_SECRET}`
+
+    if (auth !== expected) {
+        return res.status(401).json({ message: 'Unauthorized' })
+    }
+    next()
+})
+
+// Rate Limiting
+app.use(rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100, // limit each IP to 100 requests per 15 min
+    message: "Too many request from this IP"
+}))
 
 // Sanitize incoming paths
 const safePath = (subPath = '') => {
@@ -131,7 +150,7 @@ const startServer = async () => {
 // Auto-restart every 8 hours
 const AUTO_RESTART_HOURS = 8
 setTimeout(() => {
-    console.log(chalk.blue('\n🔁 Auto-restarting SimpleBox...'))
+    console.log(chalk.blue('\n🔁 Auto-restarting LiteBox...'))
     spawn('node', [__filename], {
         cwd: __dirname,
         stdio: 'inherit',
