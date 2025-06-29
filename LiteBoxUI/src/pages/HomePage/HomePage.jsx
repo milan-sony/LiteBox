@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { UploadCloud, Download, Trash2, FolderPlus, Folder } from 'lucide-react'
 import axiosInstance from '../../lib/Axios'
 import Navbar from '../../components/Navbar/Navbar'
+import toast from 'react-hot-toast'
 
 function HomePage() {
     const [structure, setStructure] = useState([])
@@ -17,7 +18,7 @@ function HomePage() {
             const res = await axiosInstance.get("/files")
             setStructure(res.data)
         } catch (err) {
-            console.error('Fetch error:', err)
+            toast.error("Failed to fetch files.")
         }
     }
 
@@ -30,17 +31,24 @@ function HomePage() {
         return dir
     }
 
+    const formatBytes = (bytes) => {
+        if (bytes === 0) return '0 Bytes'
+        const k = 1024
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+        const i = Math.floor(Math.log(bytes) / Math.log(k))
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+    }
+
     useEffect(() => {
         fetchFiles()
     }, [])
 
     const handleUpload = async (e) => {
         const file = e.target.files[0]
-        if (!file) return
+        if (!file) return toast.error("No file selected.")
 
         const formData = new FormData()
         formData.append('file', file)
-        formData.append('folder', fullPath)
 
         try {
             setUploading(true)
@@ -52,23 +60,32 @@ function HomePage() {
                     setProgress(Math.round((p.loaded * 100) / p.total))
                 }
             })
+            toast.success("File uploaded successfully!")
             fetchFiles()
         } catch (err) {
-            console.error('Upload error:', err)
+            toast.error("Upload failed.")
         } finally {
             setUploading(false)
         }
     }
 
     const createFolder = async () => {
-        if (!newFolderName.trim()) return
+        if (!newFolderName.trim()) {
+            return toast.error("Folder name cannot be empty.")
+        }
+
         const folderPath = [...currentPath, newFolderName].join('/')
         try {
             await axiosInstance.post('/create-folder', { folderPath })
-            fetchFiles()
+            toast.success("Folder created!")
             setNewFolderName('')
+            fetchFiles()
         } catch (err) {
-            console.error('Create folder error:', err)
+            if (err.response?.status === 400) {
+                toast.error("Folder already exists.")
+            } else {
+                toast.error("Failed to create folder.")
+            }
         }
     }
 
@@ -76,14 +93,16 @@ function HomePage() {
         const itemPath = [...currentPath, name].join('/')
         try {
             await axiosInstance.delete("/delete", { params: { path: itemPath } })
+            toast.success("Deleted successfully.")
             fetchFiles()
         } catch (err) {
-            console.error('Delete error:', err)
+            toast.error("Delete failed.")
         }
     }
 
     const downloadFile = (name) => {
         const pathParam = [...currentPath, name].join('/')
+        toast.success("Download started.")
         window.open(`${import.meta.env.VITE_APP_API_URL}/download?path=${encodeURIComponent(pathParam)}`, "_blank")
     }
 
@@ -164,11 +183,18 @@ function HomePage() {
                                             onClick={() => navigateTo(item.name)}
                                             className="text-secondary hover:underline text-left"
                                         >
-                                            <Folder className="inline-block w-5 h-5 mr-1" /> {item.name}
+                                            <Folder className="inline-block w-5 h-5 mr-1" />
+                                            {item.name}
+                                            <span className="text-xs text-gray-500 ml-2">
+                                                {/* Size not shown for folders unless computed */}
+                                            </span>
                                         </button>
                                     ) : (
                                         <span className="text-secondary truncate">
                                             📄 {item.name}
+                                            <span className="text-xs text-gray-500 ml-2">
+                                                {item.size ? formatBytes(item.size) : ''}
+                                            </span>
                                         </span>
                                     )}
                                 </div>
