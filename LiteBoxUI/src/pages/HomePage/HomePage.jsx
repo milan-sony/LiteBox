@@ -95,7 +95,7 @@ function HomePage() {
         <>
             <div className="min-h-screen bg-gray-100 p-4">
                 <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow p-6">
-                    <h1 className="text-2xl font-bold text-center mb-4">📦 SimpleBox</h1>
+                    <h1 className="text-2xl font-bold text-center mb-4">📦 LITEBOX</h1>
 
                     <div className="flex flex-wrap items-center justify-between mb-4">
                         <div>
