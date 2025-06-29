@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { UploadCloud, Download, Trash2, FolderPlus, Folder } from 'lucide-react'
+import { UploadCloud, Download, Trash2, FolderPlus, Folder, Loader2 } from 'lucide-react'
 import axiosInstance from '../../lib/Axios'
 import Navbar from '../../components/Navbar/Navbar'
 import toast from 'react-hot-toast'
@@ -10,6 +10,8 @@ function HomePage() {
     const [uploading, setUploading] = useState(false)
     const [progress, setProgress] = useState(0)
     const [newFolderName, setNewFolderName] = useState('')
+    const [creatingFolder, setCreatingFolder] = useState(false)
+    const [deletingItems, setDeletingItems] = useState({})
     const [storageInfo, setStorageInfo] = useState(null)
 
     const fullPath = currentPath.join('/')
@@ -87,6 +89,7 @@ function HomePage() {
 
         const folderPath = [...currentPath, newFolderName].join('/')
         try {
+            setCreatingFolder(true)
             await axiosInstance.post('/create-folder', { folderPath })
             toast.success("Folder created!")
             setNewFolderName('')
@@ -97,24 +100,29 @@ function HomePage() {
             } else {
                 toast.error("Failed to create folder.")
             }
+        } finally {
+            setCreatingFolder(false)
         }
     }
 
     const deleteItem = async (name) => {
         const itemPath = [...currentPath, name].join('/')
+        setDeletingItems(prev => ({ ...prev, [name]: true }))
         try {
             await axiosInstance.delete("/delete", { params: { path: itemPath } })
             toast.success("Deleted successfully.")
             fetchFiles()
         } catch (err) {
             toast.error("Delete failed.")
+        } finally {
+            setDeletingItems(prev => ({ ...prev, [name]: false }))
         }
     }
 
     const downloadFile = (name) => {
         const pathParam = [...currentPath, name].join('/')
         toast.success("Download started.")
-        window.open(`${import.meta.env.VITE_APP_API_URL}/download?path=${encodeURIComponent(pathParam)}`, "_blank")
+        window.open(`${window.location.origin}/download?path=${encodeURIComponent(pathParam)}`, "_blank")
     }
 
     const navigateTo = (folder) => setCurrentPath([...currentPath, folder])
@@ -154,8 +162,17 @@ function HomePage() {
                             placeholder="New folder name"
                             className="input input-sm input-bordered w-full sm:w-auto flex-1"
                         />
-                        <button onClick={createFolder} className="btn btn-sm btn-secondary">
-                            <FolderPlus size={16} className="mr-1" /> Create
+                        <button
+                            onClick={createFolder}
+                            className="btn btn-sm btn-secondary"
+                            disabled={creatingFolder}
+                        >
+                            {creatingFolder ? (
+                                <Loader2 className="animate-spin mr-2 w-4 h-4" />
+                            ) : (
+                                <FolderPlus size={16} className="mr-1" />
+                            )}
+                            {creatingFolder ? "Creating..." : "Create"}
                         </button>
                     </div>
 
@@ -204,9 +221,6 @@ function HomePage() {
                                         >
                                             <Folder className="inline-block w-5 h-5 mr-1" />
                                             {item.name}
-                                            <span className="text-xs text-gray-500 ml-2">
-                                                {/* Size not shown for folders unless computed */}
-                                            </span>
                                         </button>
                                     ) : (
                                         <span className="text-secondary truncate">
@@ -219,12 +233,23 @@ function HomePage() {
                                 </div>
                                 <div className="flex gap-2">
                                     {item.type === 'file' && (
-                                        <button onClick={() => downloadFile(item.name)} className="btn btn-xs btn-success">
+                                        <button
+                                            onClick={() => downloadFile(item.name)}
+                                            className="btn btn-xs btn-success"
+                                        >
                                             <Download size={14} />
                                         </button>
                                     )}
-                                    <button onClick={() => deleteItem(item.name)} className="btn btn-xs btn-error">
-                                        <Trash2 size={14} />
+                                    <button
+                                        onClick={() => deleteItem(item.name)}
+                                        className="btn btn-xs btn-error"
+                                        disabled={deletingItems[item.name]}
+                                    >
+                                        {deletingItems[item.name] ? (
+                                            <Loader2 className="animate-spin w-4 h-4" />
+                                        ) : (
+                                            <Trash2 size={14} />
+                                        )}
                                     </button>
                                 </div>
                             </div>
