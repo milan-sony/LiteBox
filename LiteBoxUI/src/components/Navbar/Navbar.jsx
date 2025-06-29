@@ -1,3 +1,4 @@
+import { Box } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -27,7 +28,7 @@ function Navbar() {
     return (
         <div className="navbar bg-base-100 shadow-sm">
             <div className="flex-1">
-                <Link to={"/"} className='btn btn-ghost text-xl font-[poppins]'>📦 LiteBox</Link>
+                <Link to={"/"} className='btn btn-ghost text-xl font-[poppins]'><Box /> LiteBox</Link>
             </div>
             <div className="flex-none">
                 <button onClick={toggleTheme}>

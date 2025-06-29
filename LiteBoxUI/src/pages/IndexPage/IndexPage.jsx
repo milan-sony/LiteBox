@@ -121,7 +121,7 @@ function IndexPage() {
 
                     {/* Button */}
                     <div className='mt-10 mb-10 flex justify-center items-center'>
-                        <Link to="/home" className="btn btn-secondary font-[roboto]">
+                        <Link to="/home" className="btn btn-secondary font-[roboto] dark:text-white">
                             🚀 Launch LiteBox
                         </Link>
                     </div>
