@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 
 function Navbar() {
     const [theme, setTheme] = useState("emerald")
@@ -26,7 +27,7 @@ function Navbar() {
     return (
         <div className="navbar bg-base-100 shadow-sm">
             <div className="flex-1">
-                <a className="btn btn-ghost text-xl font-[poppins]">📦 LiteBox</a>
+                <Link to={"/"} className='btn btn-ghost text-xl font-[poppins]'>📦 LiteBox</Link>
             </div>
             <div className="flex-none">
                 <button onClick={toggleTheme}>
