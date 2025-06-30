@@ -7,7 +7,6 @@ import dotenv from 'dotenv'
 import ngrok from '@ngrok/ngrok'
 import { fileURLToPath } from 'url'
 import ip from 'ip'
-import { spawn } from 'child_process'
 import chalk from 'chalk'
 import rateLimit from 'express-rate-limit'
 import checkDiskSpace from 'check-disk-space'
@@ -284,18 +283,5 @@ const startServer = async () => {
         }
     })
 }
-
-// Auto Restart after 8 hours
-const AUTO_RESTART_HOURS = 8
-setTimeout(() => {
-    console.log(`🔁 Restarting after ${AUTO_RESTART_HOURS} hours`)
-    notify(`🔁 Restarting NAS server now`)
-    spawn('node', [__filename], {
-        cwd: __dirname,
-        stdio: 'inherit',
-        shell: true
-    })
-    process.exit(0)
-}, AUTO_RESTART_HOURS * 60 * 60 * 1000)
 
 startServer()
