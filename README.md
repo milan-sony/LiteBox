@@ -29,7 +29,7 @@
 2. All secure routes (`/upload`, `/delete`, `/files`, etc.) require an Authorization token.
 3. The Telegram bot uses `node-telegram-bot-api` to interact with your NAS remotely.
 4. Ngrok exposes the local server to the internet using a secure public URL.
-5. PM2 manages the background process and allows auto restarts on a cron schedule.
+5. PM2 manages the background process and allows auto-restarts on a cron schedule.
 
 ## 📦 Tech Stack / Packages Used
 
@@ -53,8 +53,8 @@
 ### 1. Clone the Project
 
 ```bash
-git clone https://github.com/yourusername/simplebox-nas.git
-cd simplebox-nas
+git clone https://github.com/milan-sony/LiteBox.git
+cd LiteBox
 npm install
 ```
 
@@ -84,13 +84,13 @@ Option 2: Use PM2 (Recommended)
 
 ```
 npm install -g pm2
-pm2 start server.js --name simplebox
+pm2 start server.js --name litebox
 ```
 
 Auto Restart Every 8 Hours (Optional)
 
 ```
-pm2 restart simplebox --cron "0 */8 * * *"
+pm2 restart litebox --cron "0 */8 * * *"
 ```
 
 Save PM2 for System Startup
@@ -107,13 +107,13 @@ pm2 startup
 
 ```
 pkg install nodejs git
-git clone https://github.com/yourusername/simplebox-nas.git
-cd simplebox-nas
+git clone https://github.com/milan-sony/LiteBox.git
+cd LiteBox
 npm install
 node server.js
 ```
 
-3. Access your NAS using the Ngrok public URL shown in logs or via /ngrokurl Telegram command.
+3. Access your NAS using the Ngrok public URL shown in logs or via the/ngrokurl Telegram command.
 
 ## 🔐 API Authorization
 
